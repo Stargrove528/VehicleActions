@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!--
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+-->
+
+<root>
+	<template name="list_vehicleactions">
+		<list_column>
+			<child merge="delete" />
+			<sortby merge="delete" />
+		</list_column>
+	</template>
+    
+    <template name="anchor_listitem_rightvehicle">
+		<genericcontrol name="rightanchor">
+			<anchored position="insidetopright" offset="10,5" width="0" height="0" />
+			<invisible />
+		</genericcontrol>
+	</template>
+
+	<template name="list_vehicleactions">
+		<list_column>
+			<child merge="delete" />
+			<sortby merge="delete" />
+		</list_column>
+	</template>
+
+	<template name="list_vehicledetails">
+		<list_column>
+			<child merge="delete" />
+			<sortby merge="delete" />
+		</list_column>
+	</template>
+
+</root>
+

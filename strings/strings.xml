@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <!-- Vehicle Actions Tab Labels -->
+    <string name="vehicle_label_actions">Weapons</string>
+    <string name="vehicle_tooltip_addaction">Add a new action</string>
+    <string name="vehicle_tooltip_editactions">Edit the list of actions</string>
+    <string name="vehicle_label_actions_attack">Attack</string>
+    <string name="vehicle_label_actions_range">Range</string>
+    <string name="vehicle_label_actions_tl">TL</string>
+    <string name="vehicle_label_actions_weapon_name">Weapon Name</string>
+    <string name="vehicle_tooltip_actionnumber">Number of actions</string>
+    <string name="vehicle_label_actions_weapontraits">Traits</string>
+    <string name="vehicle_label_actions_damage">Damage</string>
+</root>

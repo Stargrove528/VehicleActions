@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <!-- Add the Actions tab to the reference_vehicle -->
+    <windowclass name="reference_vehicle" merge="join">
+        <tab merge="add">
+            <name>actions</name>
+            <resource>tab_actions</resource>
+            <class>vehicle_actions</class>
+            <embed />
+        </tab>
+    </windowclass>
+
+    <!-- Define the vehicle_actions minimally to check for interference -->
+    <windowclass name="vehicle_actions">
+        <script file="scripts/vehicle_actions.lua" />
+        <sheetdata>
+            <anchor_column name="columnanchor" />
+            <!-- Header and Buttons -->
+            <header_column name="header_actions">
+                <static textres="vehicle_label_actions" />
+            </header_column>
+
+            <button_iedit name="actions_iedit">
+                <anchored to="header_actions" position="righthigh" offset="-15,0" />
+                <edittarget>actions</edittarget>
+            </button_iedit>
+            <button_iadd name="actions_iadd">
+                <anchored to="actions_iedit" position="lefthigh" offset="5,0" />
+                <target>actions</target>
+            </button_iadd>
+
+            <label name="count_label">
+                <anchored to="header_actions" position="insidetopleft" offset="7,25" width="20" />
+                <center />
+                <static>#</static>
+                <tooltip textres="vehicle_tooltip_actionnumber" />
+            </label>
+
+            <genericcontrol name="rightanchor">
+                <anchored width="0" height="0">
+                    <top offset="25" />
+                    <right anchor="right" offset="0" />
+                </anchored>
+                <invisible />
+            </genericcontrol>
+            <spacer_header_idelete name="idelete_header">
+				<editmode>actions_iedit</editmode>
+			</spacer_header_idelete>
+            
+            <!-- Column Headers -->
+            <label name="label_actions_attack">
+				<anchored to="rightanchor" width="45">
+					<top />
+					<right anchor="left" relation="relative" offset="-7" />
+				</anchored>
+                <static textres="vehicle_label_actions_attack" />
+                <center />
+            </label>
+
+            <label name="label_actions_range">
+				<anchored to="rightanchor" width="80">
+					<top />
+					<right anchor="left" relation="relative" offset="-5" />
+				</anchored>
+                <static textres="vehicle_label_actions_range" />
+                <center />
+            </label>
+
+            <label name="label_actions_tl">
+				<anchored to="rightanchor" width="30">
+					<top />
+					<right anchor="left" relation="relative" offset="-5" />
+				</anchored>
+                <static textres="vehicle_label_actions_tl" />
+                <center />
+            </label>
+            
+            <label name="label_actions_weapon_name">
+				<anchored to="rightanchor">
+					<top />
+					<left parent="" offset="40" />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+                <static textres="vehicle_label_actions_weapon_name" />
+                <center />
+            </label>
+
+            <!-- Actions List -->
+			<list_vehicleactions name="actions">
+				<anchored>
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="25" />
+					<left offset="0" />
+					<right offset="0" />
+				</anchored>
+				<datasource>.actions</datasource>
+				<sortby><control>order</control></sortby>
+				<class>vehicle_actions</class>
+			</list_vehicleactions>
+            
+			<spacer_column name="spacer" />
+        </sheetdata>
+    </windowclass>
+</root>
