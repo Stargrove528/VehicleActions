@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Please see the LICENSE.md file included with this distribution for
+  attribution and copyright information.
+-->
+
 <root>
     <!-- Vehicle Actions Tab Labels -->
     <string name="vehicle_label_actions">Weapons</string>
@@ -11,4 +17,10 @@
     <string name="vehicle_tooltip_actionnumber">Number of actions</string>
     <string name="vehicle_label_actions_weapontraits">Traits</string>
     <string name="vehicle_label_actions_damage">Damage</string>
+
+    <!-- PC Vehicles Related Labels -->
+    <string name="button_pcvehicles">PC Vehicles</string>
+  	<string name="window_pcvehicles">PC Vehicles</string>
+    <string name="library_recordtype_label_pcvehicles">PC Vehicles</string>
+	<string name="library_recordtype_empty_pcvehicles">&#171; New PC Vehicle &#187;</string>
 </root>

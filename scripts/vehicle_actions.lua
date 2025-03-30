@@ -1,6 +1,6 @@
--- Please see the license.html file included with this distribution for
--- attribution and copyright information.
---
+
+--  Please see the LICENSE.md file included with this distribution for
+--  attribution and copyright information.
 
 -- ==== vehicle_actions (Tab-Level) ====
 
@@ -98,4 +98,31 @@ function actionDamage(draginfo)
     else
         ChatManager.SystemMessage("ActionVehicleDamage not defined.")
     end
+end
+
+ActionVehicleAttack = {}
+function ActionVehicleAttack.performRoll(draginfo, rActor, rAction)
+	local rRoll = {
+		sType = "vehicleattack",
+		sDesc = rAction.desc,
+		aDice = {"d6", "d6"},
+		nMod = rAction.modifier or 0
+	}
+	ActionsManager.performAction(rActor, rRoll)
+end
+
+ActionVehicleDamage = {}
+function ActionVehicleDamage.performRoll(draginfo, rActor, rAction)
+	local rRoll = {
+		sType = "vehicledamage",
+		sDesc = "[Vehicle DAMAGE] " .. (rAction.label or ""),
+		aDice = {},
+		nMod = 0
+	}
+
+	local aDice, nMod = StringManager.convertStringToDice(rAction.label or "")
+	rRoll.aDice = aDice
+	rRoll.nMod = nMod
+
+	ActionsManager.performAction(rActor, rRoll)
 end

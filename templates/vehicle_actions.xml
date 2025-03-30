@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Please see the LICENSE.md file included with this distribution for
+  attribution and copyright information.
+-->
+
 <root>
     <!-- Add the Actions tab to the vehicle reference window -->
     <windowclass name="reference_vehicle" merge="join">
