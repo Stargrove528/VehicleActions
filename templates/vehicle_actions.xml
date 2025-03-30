@@ -1,21 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-    <!-- Add the Actions tab to the reference_vehicle -->
+    <!-- Add the Actions tab to the vehicle reference window -->
     <windowclass name="reference_vehicle" merge="join">
         <tab merge="add">
             <name>actions</name>
             <resource>tab_actions</resource>
-            <class>vehicle_actions</class>
+            <class>vehicle_actions_clean</class>
             <embed />
         </tab>
     </windowclass>
 
-    <!-- Define the vehicle_actions minimally to check for interference -->
-    <windowclass name="vehicle_actions">
-        <script file="scripts/vehicle_actions.lua" />
+    <!-- Main Actions tab -->
+    <windowclass name="vehicle_actions_clean">
+        <margins control="0,0,0,10" />
+        <script>
+            function onInit()
+                update();
+            end
+
+            function update()
+                local bReadOnly = true;
+                if Session.IsHost then
+                    bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+                end
+                if actions_iedit then actions_iedit.setVisible(not bReadOnly); end
+                if actions_iadd then actions_iadd.setVisible(not bReadOnly); end
+                if actions_iedit and bReadOnly then
+                    actions_iedit.setValue(0);
+                end
+                if actions then actions.update(WindowManager.getReadOnlyState(getDatabaseNode())); end
+            end
+
+            function onDrop(x, y, draginfo)
+                return false;
+            end
+        </script>
         <sheetdata>
             <anchor_column name="columnanchor" />
-            <!-- Header and Buttons -->
             <header_column name="header_actions">
                 <static textres="vehicle_label_actions" />
             </header_column>
@@ -29,6 +50,7 @@
                 <target>actions</target>
             </button_iadd>
 
+            <!-- Column Labels -->
             <label name="count_label">
                 <anchored to="header_actions" position="insidetopleft" offset="7,25" width="20" />
                 <center />
@@ -36,68 +58,198 @@
                 <tooltip textres="vehicle_tooltip_actionnumber" />
             </label>
 
-            <genericcontrol name="rightanchor">
-                <anchored width="0" height="0">
-                    <top offset="25" />
-                    <right anchor="right" offset="0" />
-                </anchored>
-                <invisible />
-            </genericcontrol>
-            <spacer_header_idelete name="idelete_header">
-				<editmode>actions_iedit</editmode>
-			</spacer_header_idelete>
+			<genericcontrol name="rightanchor">
+				<anchored width="0" height="0">
+					<top offset="25" />
+					<right anchor="right" offset="0" />
+				</anchored>
+				<invisible />
+			</genericcontrol>
             
-            <!-- Column Headers -->
-            <label name="label_actions_attack">
+			<label name="label_actions_attack">
 				<anchored to="rightanchor" width="45">
 					<top />
 					<right anchor="left" relation="relative" offset="-7" />
 				</anchored>
-                <static textres="vehicle_label_actions_attack" />
-                <center />
-            </label>
-
-            <label name="label_actions_range">
+				<static textres="vehicle_label_actions_attack" />
+				<center />
+			</label>
+			<label name="label_actions_range">
 				<anchored to="rightanchor" width="80">
 					<top />
 					<right anchor="left" relation="relative" offset="-5" />
 				</anchored>
-                <static textres="vehicle_label_actions_range" />
-                <center />
-            </label>
-
-            <label name="label_actions_tl">
+				<static textres="vehicle_label_actions_range" />
+				<center />
+			</label>
+			<label name="label_actions_tl">
 				<anchored to="rightanchor" width="30">
 					<top />
 					<right anchor="left" relation="relative" offset="-5" />
 				</anchored>
-                <static textres="vehicle_label_actions_tl" />
-                <center />
-            </label>
-            
-            <label name="label_actions_weapon_name">
+				<static textres="vehicle_label_actions_tl" />
+				<center />
+			</label>
+			<label name="label_actions_weapon_name">
 				<anchored to="rightanchor">
 					<top />
 					<left parent="" offset="40" />
 					<right anchor="left" relation="relative" offset="-10" />
 				</anchored>
-                <static textres="vehicle_label_actions_weapon_name" />
-                <center />
-            </label>
+				<static textres="vehicle_label_actions_weapon_name" />
+				<center />
+			</label>
 
-            <!-- Actions List -->
-			<list_vehicleactions name="actions">
-				<anchored>
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="25" />
-					<left offset="0" />
-					<right offset="0" />
+            <list_vehicleactions name="actions">
+                <anchored>
+                    <top parent="columnanchor" anchor="bottom" relation="relative" offset="45" />
+                    <left offset="0" />
+                    <right offset="0" />
+                </anchored>
+                <datasource>.actions</datasource>
+                <sortby><control>order</control></sortby>
+                <class>vehicle_weapons</class>
+                <columns width="500" />
+            </list_vehicleactions>
+
+            <spacer_column name="spacer" />
+        </sheetdata>
+    </windowclass>
+
+    <!-- Weapon entry rows -->
+    <windowclass name="vehicle_weapons">
+        <margins control="0,5,0,10" />
+        <script file="scripts/vehicle_actions.lua" />
+        <sheetdata>
+            <hn name="order" />
+
+			<genericcontrol name="rightanchor">
+				<anchored height="0" width="0">
+					<top/>
+					<right />
 				</anchored>
-				<datasource>.actions</datasource>
-				<sortby><control>order</control></sortby>
-				<class>vehicle_actions</class>
-			</list_vehicleactions>
-            
-			<spacer_column name="spacer" />
+			</genericcontrol>
+			<button_idelete name="idelete">
+				<anchored>
+					<top />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-5" />
+				</anchored>
+				<editmode>actions_iedit</editmode>
+			</button_idelete>
+			<button_ireorder name="ireorder">
+				<anchored>
+					<top />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-5" />
+				</anchored>
+				<editmode>actions_iedit</editmode>
+			</button_ireorder>
+			<linkfield name="link">
+				<anchored width="20" height="20">
+					<top />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-5" />
+				</anchored>
+				<class>item</class>
+				<description field="name" />
+				<readonly />
+			</linkfield>
+
+			<basicstring_rollable name="attack">
+				<anchored width="40" height="20">
+					<top offset="2" />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<hideonvalue>0</hideonvalue>
+				<rollable />
+				<center />
+				<tabtarget next="damage" prev="range" />
+				<script>
+					function action(draginfo)
+						window.actionAttack(draginfo);
+						return true;
+					end
+					function onDragStart(button, x, y, draginfo)
+						return self.action(draginfo);
+					end
+					function onDoubleClick(button, x, y)
+						return self.action();
+					end
+				</script>
+			</basicstring_rollable>
+			<basicstring name="range">
+				<anchored width="70" height="20">
+					<top offset="2" />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<hideonvalue>0</hideonvalue>
+				<center />
+				<tabtarget next="attack" prev="tl" />
+			</basicstring>
+			<basicnumber name="tl">
+				<anchored width="30" height="20">
+					<top offset="2" />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<hideonvalue>0</hideonvalue>
+				<center />
+				<tabtarget next="range" prev="name" />
+			</basicnumber>
+			<basicstring name="name">
+				<anchored position="insidetopleft" offset="45,2" height="20">
+					<right parent="rightanchor" anchor="left" relation="current" offset="-10" />
+				</anchored>
+				<tabtarget next="tl" prev="attacks" />
+			</basicstring>
+
+			<number_charinv name="attacks">
+				<bounds>5,2,30,20</bounds>
+				<tabtarget next="name" />
+				<default>1</default>
+			</number_charinv>
+
+			<!-- Traits and Damage here -->
+			<label name="label_actions_traits">
+				<anchored height="20" width="55">
+					<top offset="28" />
+					<left offset="15" />
+				</anchored>
+				<static textres="spacecraft_label_actions_weapontraits" />
+			</label>
+			<basicstring name="traits">
+				<anchored height="20">
+					<top offset="28" />
+					<right offset="-200" />
+					<left offset="62" />
+				</anchored>
+			</basicstring>
+			<label name="label_actions_damage">
+				<anchored height="20" width="55">
+					<top offset="28" />
+					<right offset="-130" />
+				</anchored>
+				<static textres="spacecraft_label_actions_damage" />
+			</label>
+
+			<basicstring_rollable name="damage">
+				<anchored width="110" height="20">
+					<top offset="28" />
+					<right offset="-10" />
+				</anchored>
+				<rollable />
+				<center />
+				<tabtarget next="name" prev="attack" />
+				<script>
+					function action(draginfo)
+						window.actionDamage(draginfo);
+						return true;
+					end
+					function onDragStart(button, x, y, draginfo)
+						return self.action(draginfo);
+					end
+					function onDoubleClick(button, x, y)
+						return self.action();
+					end
+				</script>
+			</basicstring_rollable>
         </sheetdata>
     </windowclass>
 </root>

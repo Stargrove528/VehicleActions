@@ -19,8 +19,8 @@
         <ruleset>CoreRPG</ruleset>
 
         <!-- <script name="VehicleActions" file="scripts/vehicle_actions.lua" />  -->
-        <includefile source="templates/vehicle_actions.xml" />
         <includefile source="templates/template_extension.xml" />
+        <includefile source="templates/vehicle_actions.xml" />
         <includefile source="strings/strings.xml" />    
     </base>	
 </root>
