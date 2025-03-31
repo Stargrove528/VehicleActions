@@ -1,14 +1,20 @@
-
 --  Please see the LICENSE.md file included with this distribution for
 --  attribution and copyright information.
 
 -- ==== vehicle_actions (Tab-Level) ====
+
+ActionVehicleAttack = {};
+ActionVehicleDamage = {};
 
 function onInit()
     if self.getName and self.getName() == "vehicle_actions" then
         update()
         WindowManager.setInitialOrder(self)
     end
+
+    ActionsManager.registerResultHandler("vehicleattack", onVehicleAttack);
+    ActionsManager.registerModHandler("vehicledamage", modVehicleDamage);
+    ActionsManager.registerResultHandler("vehicledamage", onVehicleDamageResult);
 end
 
 function onDrop(x, y, draginfo)
@@ -76,14 +82,11 @@ function actionAttack(draginfo)
         label = sName,
         arc = arc,
         weaponTraits = sTraits,
-        desc = sDesc
+        desc = sDesc,
+        damage = sDamage
     }
 
-    if ActionVehicleAttack then
-        ActionVehicleAttack.performRoll(draginfo, rActor, rAction)
-    else
-        ChatManager.SystemMessage("ActionVehicleAttack not defined.")
-    end
+    ActionVehicleAttack.performRoll(draginfo, rActor, rAction)
 end
 
 function actionDamage(draginfo)
@@ -91,38 +94,97 @@ function actionDamage(draginfo)
     if not node then return end
 
     local rActor = ActorManager.resolveActor(DB.getChild(node, "...."))
-    local rAction = ActionDamage.getDamageAction(node, true)
+    local sName = name and name.getValue() or ""
+    local sDamage = damage and damage.getValue() or ""
+    local sTraits = traits and traits.getValue() or ""
 
-    if ActionVehicleDamage then
-        ActionVehicleDamage.performRoll(draginfo, rActor, rAction)
-    else
-        ChatManager.SystemMessage("ActionVehicleDamage not defined.")
-    end
+    local rAction = {
+        label = sName,
+        damage = sDamage,
+        traits = sTraits
+    }
+
+    ActionVehicleDamage.performRoll(draginfo, rActor, rAction)
 end
 
-ActionVehicleAttack = {}
 function ActionVehicleAttack.performRoll(draginfo, rActor, rAction)
-	local rRoll = {
-		sType = "vehicleattack",
-		sDesc = rAction.desc,
-		aDice = {"d6", "d6"},
-		nMod = rAction.modifier or 0
-	}
-	ActionsManager.performAction(rActor, rRoll)
+    local rRoll = {}
+    rRoll.sType = "vehicleattack"
+    rRoll.sDesc = rAction.desc or "[Vehicle Attack]"
+    rRoll.aDice = { "d6", "d6" }
+    rRoll.nMod = rAction.modifier or 0
+
+    ActionsManager.performAction(draginfo, rActor, rRoll)
 end
 
-ActionVehicleDamage = {}
 function ActionVehicleDamage.performRoll(draginfo, rActor, rAction)
-	local rRoll = {
-		sType = "vehicledamage",
-		sDesc = "[Vehicle DAMAGE] " .. (rAction.label or ""),
-		aDice = {},
-		nMod = 0
-	}
+    local rRoll = {}
+    rRoll.sType = "vehicledamage"
+    local sDamage = rAction.damage:upper()
 
-	local aDice, nMod = StringManager.convertStringToDice(rAction.label or "")
-	rRoll.aDice = aDice
-	rRoll.nMod = nMod
+    local bDestructive = sDamage:match("DD$") ~= nil
+    local sNum = sDamage:match("^(%d+)[Dd]+$")
+    local nDice = tonumber(sNum or "0")
 
-	ActionsManager.performAction(rActor, rRoll)
+    rRoll.aDice = {}
+    for i = 1, nDice do
+        table.insert(rRoll.aDice, "d6")
+    end
+
+    rRoll.sDamageRaw = sDamage
+    rRoll.sLabel = rAction.label or ""
+    rRoll.nMod = 0
+    rRoll.sTraits = rAction.traits or ""
+    rRoll.bDestructive = bDestructive
+
+    local sLabel = string.format("[Vehicle Damage%s] %s%s",
+        bDestructive and ": DESTRUCTIVE" or "",
+        rRoll.sLabel,
+        bDestructive and " (x10) [DESTRUCTIVE]" or "")
+
+    if rRoll.sTraits and rRoll.sTraits ~= "" then
+        sLabel = sLabel .. string.format(" [TRAITS: %s]", rRoll.sTraits)
+    end
+
+    rRoll.sDesc = sLabel
+
+    ActionsManager.performAction(draginfo, rActor, rRoll)
+end
+
+function modVehicleDamage(rSource, rTarget, rRoll)
+    -- Placeholder for modifier handling
+end
+
+function onVehicleDamageResult(rSource, rTarget, rRoll)
+    if rRoll.sDesc:find('%[DESTRUCTIVE%]') then
+        rRoll.bDestructive = true
+    end
+
+    local nTotal = 0
+    local nUnscaledTotal = 0
+    local aDieResults = {}
+    local aDieScaled = {}
+
+    for _, vDie in ipairs(rRoll.aDice) do
+        local nOriginalResult = vDie.result or math.random(1, 6)
+        table.insert(aDieResults, tostring(nOriginalResult))
+        nUnscaledTotal = nUnscaledTotal + nOriginalResult
+
+        local nScaled = rRoll.bDestructive and (nOriginalResult * 10) or nOriginalResult
+        vDie.result = nScaled
+        vDie.value = nil
+
+        table.insert(aDieScaled, tostring(nScaled))
+        nTotal = nTotal + nScaled
+    end
+
+    local rMessage = ActionsManager.createActionMessage(rSource, rRoll)
+    rMessage.text = string.format("%s [TYPE: kinetic (%dd6=%d)] = %d [%dd6 = %s]", rRoll.sDesc, #rRoll.aDice, nUnscaledTotal, nTotal, #rRoll.aDice, table.concat(aDieResults, ", "))
+
+    Comm.deliverChatMessage(rMessage)
+end
+
+function onVehicleAttack(rSource, rTarget, rRoll)
+    local rMessage = ActionsManager.createActionMessage(rSource, rRoll)
+    Comm.deliverChatMessage(rMessage)
 end
